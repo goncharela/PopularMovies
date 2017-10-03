@@ -42,6 +42,9 @@ public class MainActivity
     private Button mTryAgain;
     private LinearLayout mNoInternetConnectionLinearLayout;
 
+    private Button mTryAgainNoData;
+    private LinearLayout mNoDataAvailableLinearLayout;
+
     private SharedPreferences preferences;
     private String mSortBy;
 
@@ -55,7 +58,17 @@ public class MainActivity
         mNoInternetConnectionLinearLayout = (LinearLayout) findViewById(R.id.ll_no_connection);
         mTryAgain = (Button) findViewById(R.id.btn_try_again);
 
+        mNoDataAvailableLinearLayout = (LinearLayout) findViewById(R.id.ll_no_data);
+        mTryAgainNoData = (Button) findViewById(R.id.btn_try_again_no_data);
+
         mTryAgain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                makeTMDBSearch();
+            }
+        });
+
+        mTryAgainNoData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 makeTMDBSearch();
@@ -79,6 +92,7 @@ public class MainActivity
 
     private void makeTMDBSearch() {
         mNoInternetConnectionLinearLayout.setVisibility(View.INVISIBLE);
+        mNoDataAvailableLinearLayout.setVisibility(View.INVISIBLE);
 
         URL tmdbSearchUrl = NetworkUtils.buildUrl(mSortBy);
         new TMDBQueryTask().execute(tmdbSearchUrl);
@@ -148,7 +162,8 @@ public class MainActivity
 
         @Override
         protected void onPostExecute(String tmdbResults) {
-            if(tmdbResults != "") {
+
+            if(tmdbResults != "" && tmdbResults != null) {
                 try {
                     popularMovie = getMovieListFromJson(tmdbResults);
 
@@ -188,12 +203,15 @@ public class MainActivity
     }
 
     private void showNoConnectionMessage() {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
         mNoInternetConnectionLinearLayout.setVisibility(View.VISIBLE);
-        Toast.makeText(MainActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
     }
 
     private void showJsonEmptyMessage() {
-        Toast.makeText(MainActivity.this, "No Data Available", Toast.LENGTH_SHORT).show();
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mNoDataAvailableLinearLayout.setVisibility(View.VISIBLE);
+        Toast.makeText(MainActivity.this, getString(R.string.no_data_available), Toast.LENGTH_SHORT).show();
     }
 
     private void setupSharedPreferences() {

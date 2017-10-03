@@ -22,6 +22,7 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 
 import ar.com.cotidiano.popularmovies.utilities.NetworkUtils;
 
@@ -39,6 +40,9 @@ public class PopularMovieDetail extends AppCompatActivity {
     private TextView mOverviewTextView;
     private TextView mReleaseDateTextView;
     private TextView mVoteAverageTextView;
+
+    private Button mTryAgainNoData;
+    private LinearLayout mNoDataAvailableLinearLayout;
 
     private Button mTryAgain;
     private LinearLayout mNoInternetConnectionLinearLayout;
@@ -70,6 +74,17 @@ public class PopularMovieDetail extends AppCompatActivity {
             }
         });
 
+        mNoDataAvailableLinearLayout = (LinearLayout) findViewById(R.id.ll_no_data);
+        mTryAgainNoData = (Button) findViewById(R.id.btn_try_again_no_data);
+
+
+        mTryAgainNoData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getMovieData();
+            }
+        });
+
         Intent intent = getIntent();
         if(intent.hasExtra(Intent.EXTRA_TEXT)) {
             movieId = intent.getStringExtra(Intent.EXTRA_TEXT);
@@ -89,6 +104,7 @@ public class PopularMovieDetail extends AppCompatActivity {
 
     private void getMovieData() {
         mNoInternetConnectionLinearLayout.setVisibility(View.INVISIBLE);
+        mNoDataAvailableLinearLayout.setVisibility(View.INVISIBLE);
 
         if(movieId != "") {
             URL tmdbSearchUrl = NetworkUtils.buildMovieUrl(movieId);
@@ -139,7 +155,7 @@ public class PopularMovieDetail extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String movieJson) {
-            if(movieJson != "") {
+            if(!movieJson.equals("") && movieJson!=null) {
                 try {
                     movie = getMovieFromJson(movieJson);
 
@@ -172,11 +188,14 @@ public class PopularMovieDetail extends AppCompatActivity {
     }
 
     private void showNoConnectionMessage() {
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
         mNoInternetConnectionLinearLayout.setVisibility(View.VISIBLE);
-        Toast.makeText(PopularMovieDetail.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+        Toast.makeText(PopularMovieDetail.this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
     }
 
     private void showJsonEmptyMessage() {
-        Toast.makeText(PopularMovieDetail.this, "No Data Available", Toast.LENGTH_SHORT).show();
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mNoDataAvailableLinearLayout.setVisibility(View.VISIBLE);
+        Toast.makeText(PopularMovieDetail.this, getString(R.string.no_data_available), Toast.LENGTH_SHORT).show();
     }
 }

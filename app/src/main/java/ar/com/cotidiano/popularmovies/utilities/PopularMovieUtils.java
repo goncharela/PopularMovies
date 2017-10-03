@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.net.HttpURLConnection;
+
 import ar.com.cotidiano.popularmovies.Movie;
 import ar.com.cotidiano.popularmovies.PopularMovie;
 
@@ -20,13 +22,15 @@ public class PopularMovieUtils {
         final String MOVIE_LIST = "results";
         final String TITLE = "title";
         final String POSTER = "poster_path";
+        final String OWM_MESSAGE_CODE = "status_code";
 
         PopularMovie[] popularMovie = null;
 
-        try {
-            JSONObject popularMovieJson = new JSONObject(popularMoviesJsonStr);
+        JSONObject popularMovieJson = new JSONObject(popularMoviesJsonStr);
 
-            JSONArray moviesArray = popularMovieJson.getJSONArray(MOVIE_LIST);
+        JSONArray moviesArray = popularMovieJson.getJSONArray(MOVIE_LIST);
+
+        if(moviesArray != null) {
             popularMovie = new PopularMovie[moviesArray.length()];
 
             for (int i = 0; i < moviesArray.length(); i++) {
@@ -42,9 +46,6 @@ public class PopularMovieUtils {
 
                 popularMovie[i] = new PopularMovie(title, poster_path, id);
             }
-        } catch (JSONException e) {
-            Log.e("MYAPP", "unexpected JSON exception", e);
-            // Do something to recover ... or kill the app.
         }
 
         return popularMovie;
